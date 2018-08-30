@@ -4,14 +4,222 @@
 		<meta charset="utf-8" />
 		<title>个人简历</title>
 		<style type="text/css">
-			*{margin: 0;padding: 0;}
+			*{margin: 0;padding: 0;border: none;}
+			ul,li,ol,p{margin: 0;padding: 0;list-style: none;}
 			#bin{width: 100%;height: 600px;background: red;}
+			/*头部栏*/
+			#personal{width: 100%;height: 165px;overflow: hidden;}
+			#personal .p_top{position: absolute;overflow: hidden;width: 150px;height: 150px;border-radius: 75px;margin-top: 7px;margin-left: 30px;}
+			#p_content{display: block;width: 100%;height: 100%;background: #898989;}
+			#p_content li{display: inline-block;height: 100%;position: relative;overflow: hidden;}
+			/*中间主体*/
+			#content{width: 100%;height: auto;background: cyan;}
+			.slider-main-img div{width: 360px;height: 240px;background: coral;}
+			.slider{position:relative;width: 360px;height: 240px;background: fuchsia;margin: 0 auto;overflow: hidden;}
+			.slider-scroll{position:relative;width: 360px;height: 240px;/*overflow: hidden;*/}
+			.slider-main{width: 720px;height: 220px;background: yellow;}
+			.slider-main-img{position: absolute;width: 360px;height: 220px;overflow: hidden;}
+			.slider-ctl{cursor: pointer;height: 20px;margin-top: -20px;text-align: center;}
+			.slider-ctl-prev,.slider-ctl-next{position: absolute;text-align: center;line-height:50px;width: 25px;height: 50px;top: 50%;background: aqua;margin-top: -35px;}
+			.slider-ctl-prev{left: 5px;}
+			.slider-ctl-next{right: 5px;}
+			.slider-ctl-icon{position: relative;width: 25px;height: 5px;background: red;display: inline-block;margin: 5px;}
+			.current{background: teal;}
 		</style>
 	</head>
 	<body>
 		<!--主体-->
 		<div id="bin">
-			
+			<!--个人信息栏-->
+			<div id="personal">
+				<ul id="p_content">
+					<li style="width: 200px;">
+						<!--头像-->
+						<div class="p_top"><img src="img/xuejie.png" width="100%" height="auto"/></div>
+					</li>
+					<li style="width: 300px;">
+						<h5 style="margin-top: 50px;">姓名：梁耀辉</h5></br>
+						<h5>邮箱：15728382987@163.com</h5>
+					</li>
+					<li style="float: right;margin-right: 100px;margin-top: 50px;"><h1>求职：WEB前端工程师</h1></li>
+				</ul>
+			</div>
+			<!--中间主体-->
+			<div id="content">
+				<div id="slider" class="slider">
+					<div id="slider_scroll" class="slider-scroll">
+						<div class="slider-main" id="slider_main">
+							<div class="slider-main-img">
+								<img src="img/xuejie.png" width="100%" height="auto"/>
+							</div>
+							<div class="slider-main-img">
+								<img src="img/xuejie.png" width="100%" height="auto"/>
+							</div>
+							<div class="slider-main-img">
+								<img src="img/xuejie.png" width="100%" height="auto"/>
+							</div>
+						</div>
+					</div>
+					<div class="slider-ctl" id="slider_ctl">
+						<span class="slider-ctl-prev">左</span>
+						<span class="slider-ctl-next">右</span>
+					</div>
+				</div>
+			</div>
 		</div>
+		
+		<script>
+			window.onload = function(){
+				
+				//1.轮播图需要获取的标签
+				var slider = $("slider");
+				var slider_main = $("slider_main");
+				var slider_main_img = slider_main.children;
+				var slider_ctl = slider.children[1];
+				//全局索引
+				var iNow = 0;
+				var p_content = $("p_content");
+				var lis = p_content.children[0];
+				var d1 = lis.children[0];
+				console.log(lis);
+				lis.onclick = function(){
+					console.log(d1)
+					buffer(d1, { "width": 50, "height": 50},function(){
+						buffer(d1, {"width": 150, "height": 150});
+					});
+				}
+				console.log(slider_main_img);
+				//2.遍历生成指示器
+				for(var i=0;i<slider_main_img.length;i++){
+					var span = document.createElement("span");
+					span.className = 'slider-ctl-icon';
+					span.innerText = slider_main_img.length - i-1;
+					slider_ctl.insertBefore(span,slider_ctl.children[0]);
+				}
+				//3.让第一个选中
+				slider_ctl.children[0].className = 'slider-ctl-icon current';
+				//4.让图片归位
+				var scroll_w = slider.offsetWidth;
+				for(var j=1;j<slider_main_img.length;j++){
+					slider_main_img[j].style.left = scroll_w+'px';
+					
+				}
+				//5.遍历监听
+				var slider_ctl_child = slider_ctl.children;
+				for(var i=0;i<slider_ctl_child.length;i++){
+					slider_ctl_child[i].onmousedown = function(){
+						//5.1判断当前点击
+						if(this.className === 'slider-ctl-prev'){
+							buffer(slider_main_img[iNow],{'left':scroll_w});
+							iNow--;
+							if(iNow<0){
+								iNow = slider_main_img.length -1;
+							}
+							slider_main_img[iNow].style.left = -scroll_w+'px';
+							buffer(slider_main_img[iNow],{'left':0});
+						}else if(this.className === 'slider-ctl-next'){
+							autoPlay();
+						}else{
+							//获取索引
+							var index =  parseInt(this.innerText);
+							console.log(index);
+							//对比
+							if(index>iNow){
+								buffer(slider_main_img[iNow],{'left':-scroll_w});
+								slider_main_img[index].style.left = scroll_w+'px';
+							}else if(index<iNow){
+								buffer(slider_main_img[iNow],{'left':scroll_w});
+								slider_main_img[index].style.left = -scroll_w+'px';
+							}
+							iNow = index;
+							buffer(slider_main_img[iNow],{'left':0});
+						}
+						
+					}
+					console.log(slider_ctl_child[i]);
+				}
+				//6.切换索引
+				function changeIndex(){
+					for(var i=1;i<slider_ctl.children.length-1;i++){
+						slider_ctl.children[i].className = 'slider-ctl-icon'
+					}
+					slider_ctl.children[iNow].className = 'slider-ctl-icon current'
+				}
+				//7.自动播放
+				var timer = setInterval(autoPlay,1000);
+				function autoPlay(){
+					buffer(slider_main_img[iNow],{'left':-scroll_w});
+					iNow++;
+					if(iNow>=slider_main_img.length){
+						iNow = 0;
+					}
+					slider_main_img[iNow].style.left = scroll_w+'px';
+					buffer(slider_main_img[iNow],{'left':0});
+				}
+				//清除轮播定时器
+				slider.onmouseover = function(){
+					clearInterval(timer);
+				}
+				//开启轮播定时器
+				slider.onmouseout = function(){
+					timer = setInterval(autoPlay,1000);
+				}
+				//动画函数
+				function buffer(obj,json,fn){
+					//1.1清除定时器
+					clearInterval(obj.timer);
+					//1.2设置定时器
+					var begin = 0, target = 0, speed = 0;
+					obj.timer = setInterval(function(){
+						// 1.3.0 旗帜
+	             		var flag = true;
+	             		for(var k in json){
+	             			// 1.3 获取初始值
+			                begin = parseInt(getCSSAttrValue(obj, k)) || 0;
+			                target = parseInt(json[k]);
+			                // 1.4 求出步长
+			                speed = (target - begin) * 0.2;
+			
+			                // 1.5 判断是否向上取整
+			                speed = (target > begin) ? Math.ceil(speed) : Math.floor(speed);
+			
+			                // 1.6 动起来
+			                obj.style[k] = begin + speed + "px";
+			
+			                // 1.5 判断
+			                if(begin !== target){
+			                   flag = false;
+			                }
+	             		}
+	             		// 1.3 清除定时器
+			            if(flag){
+			                 clearInterval(obj.timer);
+			
+			                console.log(fn);
+			
+			                // 判断有没有回调函数
+			                if(fn){
+			                    fn();
+			                }
+			            }
+					},10)
+				}
+				//获取id函数
+				function $(id){
+					return document.getElementById(id);
+				}
+				//获取当前的DOM的CSS值
+				function getCSSAttrValue(obj, attr) {
+				    if(obj.currentStyle){ // IE 和 opera
+				        return obj.currentStyle[attr];
+				    }else {
+				        return window.getComputedStyle(obj, null)[attr];
+				    }
+				}
+				buffer(d1, { "width": 50, "height": 50},function(){
+					buffer(d1, {"width": 150, "height": 150});
+				});
+			}
+		</script>
 	</body>
 </html>
